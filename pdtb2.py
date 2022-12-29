@@ -39,7 +39,7 @@ class CorpusReader:
             for i, row in enumerate(row_iterator):
                 if display_progress:
                     sys.stderr.write("\r")
-                    sys.stderr.write("row {}".format(i+1))
+                    sys.stderr.write("row {} ".format(i+1))
                     sys.stderr.flush()
                 yield Datum(row)
             if display_progress: sys.stderr.write("\n")
@@ -519,7 +519,7 @@ class Datum:
         Value: a str
         """
         if index not in (1,2):
-            print('index must be int 1 or int 2; was %s (type %s).\n' % (index, index.__class__.__.name__))
+            raise ArgumentError('index must be int 1 or int 2; was %s (type %s).\n' % (index, index.__class__.__.name__))
         src = eval("self.Arg%s_Attribution_Source" % index)
         if src == "Inh":
             src = self.Attribution_Source
@@ -644,9 +644,4 @@ if __name__ == '__main__':
         s = sys.argv[1]
         d = Datum(s)
         print((d.to_graphviz()))
-        
-    
-        
-        
 
-       
