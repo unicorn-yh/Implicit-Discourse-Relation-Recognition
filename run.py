@@ -7,7 +7,7 @@ import transformers.utils.logging
 from train_mutual_learning import train
 from importlib import import_module
 from utils import build_dataset, build_iterator, get_time_dif
-from transformers import RobertaTokenizer, BertTokenizer, AlbertTokenizer
+from transformers import RobertaTokenizer, BertTokenizer, AlbertTokenizer, DistilBertTokenizer
 from datetime import datetime
 import warnings
 import numpy as np
@@ -15,10 +15,10 @@ warnings.filterwarnings("ignore")
 transformers.utils.logging.set_verbosity_error()
 
 ########## CHOOSE MODEL ##########
-#model = 'roberta-base'
+model = 'roberta-base'
 #model = 'bert-base-uncased'
-model = 'albert-base-v2'
-
+#model = 'albert-base-v2'
+#model = 'distilbert-base-uncased'
 ##################################
 
 
@@ -88,7 +88,12 @@ class Config(object):
             self.batch_size = 32
             self.hidden_size = 768
             self.bert_path = model
-            self.tokenizer = AlbertTokenizer.from_pretrained(model)
+            self.tokenizer = AlbertTokenizer.from_pretrained(model) 
+        elif model == 'distilbert-base-uncased':
+            self.batch_size = 32
+            self.hidden_size = 768
+            self.bert_path = model
+            self.tokenizer = DistilBertTokenizer.from_pretrained(model)
         
 
         self.lambda1 = 1.0    # for the top-level loss
