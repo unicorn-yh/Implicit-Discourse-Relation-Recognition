@@ -4,7 +4,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from transformers import DistilBertModel
-from Layers.gcn import GraphConvolution
+from gcn import GraphConvolution
 import pickle
 
 class Label2Context(nn.Module):  # label attention in the encoder

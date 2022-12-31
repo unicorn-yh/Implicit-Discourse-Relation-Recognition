@@ -4,7 +4,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from transformers import AlbertModel
-from Layers.gcn import GraphConvolution
+from gcn import GraphConvolution
 import pickle
 
 

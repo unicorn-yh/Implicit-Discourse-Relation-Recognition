@@ -18,8 +18,8 @@ transformers.utils.logging.set_verbosity_error()
 #model = 'roberta-base'
 #model = 'bert-base-uncased'
 #model = 'albert-base-v2'
-#model = 'distilbert-base-uncased'
-model = 'roberta-large'
+model = 'distilbert-base-uncased'
+#model = 'roberta-large'
 ##################################
 
 
