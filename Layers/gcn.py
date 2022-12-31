@@ -3,9 +3,7 @@ import torch.nn as nn
 
 
 class GraphConvolution(nn.Module):
-    """
-    Simple GCN layer
-    """
+    """ 简单的图卷积层 """
     def __init__(self, in_features, out_features, bias=True):
         super(GraphConvolution, self).__init__()
         self.in_features = in_features
