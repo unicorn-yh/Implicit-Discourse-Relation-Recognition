@@ -7,7 +7,7 @@ import transformers.utils.logging
 from train_mutual_learning import train
 from importlib import import_module
 from utils import build_dataset, build_iterator, get_time_dif
-from transformers import RobertaTokenizer, BertTokenizer, AlbertTokenizer, DistilBertTokenizer
+from transformers import RobertaTokenizer, BertTokenizer, AlbertTokenizer, DistilBertTokenizer, GPT2Tokenizer
 from datetime import datetime
 import warnings
 import numpy as np
@@ -15,10 +15,11 @@ warnings.filterwarnings("ignore")
 transformers.utils.logging.set_verbosity_error()
 
 ########## CHOOSE MODEL ##########
-model = 'roberta-base'
+#model = 'roberta-base'
 #model = 'bert-base-uncased'
 #model = 'albert-base-v2'
 #model = 'distilbert-base-uncased'
+model = 'roberta-large'
 ##################################
 
 
@@ -37,8 +38,6 @@ def setlogging(level, filename):
 
 
 class Config(object):
-
-    """ """
     def __init__(self, dataset, cuda=0, finetune=True, lambda4=1.0):
         self.model_name = model
         self.train_path = dataset + '/data/train.txt'
@@ -47,10 +46,8 @@ class Config(object):
 
         self.i2conn = [x.strip() for x in open(dataset + '/data/conn.txt').readlines()]
         self.conn2i = dict((x, xid) for xid, x in enumerate(self.i2conn))
-
         self.i2top = [x.strip() for x in open(dataset + '/data/class4.txt').readlines()]
         self.top2i = dict((x, xid) for xid, x in enumerate(self.i2top))
-
         self.i2sec = [x.strip() for x in open(dataset + '/data/class11.txt').readlines()]
         self.sec2i = dict((x, xid) for xid, x in enumerate(self.i2sec))
 
@@ -70,16 +67,12 @@ class Config(object):
         self.finetune_bert = finetune
         if self.finetune_bert:
             self.num_epochs = 15
-            self.learning_rate = 0.00001
+            self.learning_rate = 10e-5
         else:
             self.num_epochs = 20
             self.learning_rate = 0.00005
-        if model == 'roberta-base':
-            self.batch_size = 32
-            self.hidden_size = 768
-            self.bert_path = model
-            self.tokenizer = RobertaTokenizer.from_pretrained(model)
-        elif model == 'bert-base-uncased':
+
+        if model == 'bert-base-uncased':
             self.batch_size = 32
             self.hidden_size = 768
             self.bert_path = model
@@ -88,12 +81,23 @@ class Config(object):
             self.batch_size = 32
             self.hidden_size = 768
             self.bert_path = model
-            self.tokenizer = AlbertTokenizer.from_pretrained(model) 
+            self.tokenizer = AlbertTokenizer.from_pretrained(model)
         elif model == 'distilbert-base-uncased':
             self.batch_size = 32
             self.hidden_size = 768
             self.bert_path = model
             self.tokenizer = DistilBertTokenizer.from_pretrained(model)
+        elif model == 'roberta-base':
+            self.batch_size = 32
+            self.hidden_size = 768
+            self.bert_path = model
+            self.tokenizer = RobertaTokenizer.from_pretrained(model)
+        elif model == 'roberta-large':
+            self.batch_size = 16
+            self.hidden_size = 1024
+            self.bert_path = model
+            self.tokenizer = RobertaTokenizer.from_pretrained(model)
+
         
 
         self.lambda1 = 1.0    # for the top-level loss
@@ -112,16 +116,26 @@ class Config(object):
         # show training and test time
         self.show_time = True
 
-        self.num_gcn_layer = 2  # gcn layer num
+        self.num_gcn_layer = 6  # gcn layer num
         self.label_num = 117    # total label num(top:4,second:11,conn:102)
         self.label_embedding_size = 100
-        self.attn_hidden_size = 768
-        self.enc_emb_dim = 384
-        self.dec_emb_dim = 384
-        self.enc_hidden_size = 768
-        self.dec_hidden_size = 768
-        self.enc_hid_dim = 768
-        self.dec_hid_dim = 768
+        if model == 'roberta-large':
+            self.attn_hidden_size = 1024
+            self.enc_emb_dim = 512
+            self.dec_emb_dim = 512
+            self.enc_hidden_size = 1024
+            self.dec_hidden_size = 1024
+            self.enc_hid_dim = 1024
+            self.dec_hid_dim = 1024
+        else:
+            self.attn_hidden_size = 768
+            self.enc_emb_dim = 384
+            self.dec_emb_dim = 384
+            self.enc_hidden_size = 768
+            self.dec_hidden_size = 768
+            self.enc_hid_dim = 768
+            self.dec_hid_dim = 768
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Label Dependence-aware Sequence Generation Model for Multi-level Implicit Discourse Relation Recognition')
@@ -132,19 +146,11 @@ if __name__ == '__main__':
     parser.add_argument('--lambda4', type=float, default=1.0, help='lambda for kl loss')
     args = parser.parse_args()
 
-    dataset = 'PDTB/Ji'  # data
-
+    dataset = 'PDTB/Ji'  
     model_name = args.model      # roberta-base / bert-base-uncased
     x = import_module(model_name)
-
     config = Config(dataset, args.cuda, bool(args.tune), args.lambda4)
     setlogging(lgg.DEBUG, config.log)
-
-
-    # np.random.seed(123)
-    # torch.manual_seed(123)
-    # torch.cuda.manual_seed_all(123)
-    # torch.backends.cudnn.deterministic = True
 
     hyper_parameters = config.__dict__.copy()
     hyper_parameters['i2conn'] = ''
@@ -155,7 +161,6 @@ if __name__ == '__main__':
     hyper_parameters['sec2i'] = ''
     hyper_parameters['tokenizer'] = ''
     lgg.info(hyper_parameters)
-
     start_time = time.time()
     lgg.info("Loading data...")
 
