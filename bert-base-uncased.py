@@ -66,8 +66,8 @@ class Model(nn.Module):
         nn.init.xavier_normal_(self.label_embedding.data)
 
         self.bert = BertModel.from_pretrained(config.bert_path)
-        '''for param in self.bert.parameters():
-            param.requires_grad = config.finetune_bert'''
+        for param in self.bert.parameters():
+            param.requires_grad = config.finetune_bert
 
         self.gcn_layers = nn.ModuleList()
         for i in range(config.num_gcn_layer):
@@ -128,8 +128,7 @@ class Model(nn.Module):
                 label2context_out = self.label2context(encode_out, label_repr, [15, 117])
                 pred, output = self.decoder(input, hidden.contiguous(), label2context_out)
                 out_conn = self.fc1_conn(pred)
-                t = self.softmax(out_conn).unsqueeze(-1).expand(out_conn.shape[0], out_conn.shape[1],
-                                                               label_repr.shape[1])
+                t = self.softmax(out_conn).unsqueeze(-1).expand(out_conn.shape[0], out_conn.shape[1], label_repr.shape[1])
                 input = (t * label_repr[15:117]).sum(dim=1, keepdim=False)
         # the bottom-up manner auxilary decoder
         for i in range(3):
@@ -149,8 +148,7 @@ class Model(nn.Module):
                 pred_reverse, output_reverse = self.decoder_reverse(input_reverse, hidden_reverse, label2context_out)
                 hidden_reverse = output_reverse
                 out_sec_reverse = self.fc2_sec(pred_reverse)
-                t = self.softmax(out_sec_reverse).unsqueeze(-1).expand(out_sec_reverse.shape[0],
-                                                                       out_sec_reverse.shape[1], label_repr.shape[1])
+                t = self.softmax(out_sec_reverse).unsqueeze(-1).expand(out_sec_reverse.shape[0], out_sec_reverse.shape[1], label_repr.shape[1])
                 input_reverse = (t * label_repr[4:15]).sum(dim=1, keepdim=False)
 
             if i == 2:

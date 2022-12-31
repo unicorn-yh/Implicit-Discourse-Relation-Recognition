@@ -98,8 +98,6 @@ class Model(nn.Module):
         bs = hidden_last.shape[0]
         hidden_g = hidden_cls
         hidden = hidden_cls
-        # input = torch.FloatTensor(torch.zeros(bs, self.label_embedding.shape[1])).to(self.config.device)
-        # input_reverse = torch.FloatTensor(torch.zeros(bs, self.label_embedding.shape[1])).to(self.config.device)
         input = label_repr[0: 4].sum(dim=0, keepdim=True).repeat(bs, 1)
         input_reverse = label_repr[15: 117].sum(dim=0, keepdim=True).repeat(bs, 1)
         hidden_reverse = hidden_cls
@@ -127,8 +125,7 @@ class Model(nn.Module):
                 label2context_out = self.label2context(encode_out, label_repr, [15, 117])
                 pred, output = self.decoder(input, hidden.contiguous(), label2context_out)
                 out_conn = self.fc1_conn(pred)
-                t = self.softmax(out_conn).unsqueeze(-1).expand(out_conn.shape[0], out_conn.shape[1],
-                                                               label_repr.shape[1])
+                t = self.softmax(out_conn).unsqueeze(-1).expand(out_conn.shape[0], out_conn.shape[1], label_repr.shape[1])
                 input = (t * label_repr[15:117]).sum(dim=1, keepdim=False)
         # the bottom-up manner auxilary decoder
         for i in range(3):
@@ -148,8 +145,7 @@ class Model(nn.Module):
                 pred_reverse, output_reverse = self.decoder_reverse(input_reverse, hidden_reverse, label2context_out)
                 hidden_reverse = output_reverse
                 out_sec_reverse = self.fc2_sec(pred_reverse)
-                t = self.softmax(out_sec_reverse).unsqueeze(-1).expand(out_sec_reverse.shape[0],
-                                                                       out_sec_reverse.shape[1], label_repr.shape[1])
+                t = self.softmax(out_sec_reverse).unsqueeze(-1).expand(out_sec_reverse.shape[0], out_sec_reverse.shape[1], label_repr.shape[1])
                 input_reverse = (t * label_repr[4:15]).sum(dim=1, keepdim=False)
 
             if i == 2:

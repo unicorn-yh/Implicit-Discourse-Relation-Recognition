@@ -1,4 +1,3 @@
-# coding: UTF-8
 import time
 import torch
 import argparse
@@ -10,7 +9,6 @@ from utils import build_dataset, build_iterator, get_time_dif
 from transformers import RobertaTokenizer, BertTokenizer, AlbertTokenizer, DistilBertTokenizer, GPT2Tokenizer
 from datetime import datetime
 import warnings
-import numpy as np
 warnings.filterwarnings("ignore")
 transformers.utils.logging.set_verbosity_error()
 
@@ -18,8 +16,8 @@ transformers.utils.logging.set_verbosity_error()
 #model = 'roberta-base'
 #model = 'bert-base-uncased'
 #model = 'albert-base-v2'
-model = 'distilbert-base-uncased'
-#model = 'roberta-large'
+#model = 'distilbert-base-uncased'
+model = 'roberta-large'
 ##################################
 
 
@@ -51,13 +49,13 @@ class Config(object):
         self.i2sec = [x.strip() for x in open(dataset + '/data/class11.txt').readlines()]
         self.sec2i = dict((x, xid) for xid, x in enumerate(self.i2sec))
 
-        self.save_path_top = dataset + '/saved_dict/' + self.model_name + '_top.ckpt'        # 
-        self.save_path_sec = dataset + '/saved_dict/' + self.model_name + '_sec.ckpt'        # 
+        self.save_path_top = dataset + '/saved_dict/' + self.model_name + '_top.ckpt'        
+        self.save_path_sec = dataset + '/saved_dict/' + self.model_name + '_sec.ckpt'        
         self.save_path_conn = dataset + '/saved_dict/' + self.model_name + '_conn.ckpt'
         t = datetime.now().strftime('%B%d-%H:%M:%S')
         self.log = dataset + '/log/' + self.model_name + '.log'
         print("LOG PATH:",self.log)
-        self.device = torch.device('cuda:{0}'.format(cuda) if torch.cuda.is_available() else 'cpu')   # 
+        self.device = torch.device('cuda:{0}'.format(cuda) if torch.cuda.is_available() else 'cpu')   
 
         self.require_improvement = 10000
         self.n_top = len(self.i2top)
@@ -98,7 +96,6 @@ class Config(object):
             self.bert_path = model
             self.tokenizer = RobertaTokenizer.from_pretrained(model)
 
-        
 
         self.lambda1 = 1.0    # for the top-level loss
         self.lambda2 = 1.0    # for the second-level loss
@@ -116,8 +113,8 @@ class Config(object):
         # show training and test time
         self.show_time = True
 
-        self.num_gcn_layer = 6  # gcn layer num
-        self.label_num = 117    # total label num(top:4,second:11,conn:102)
+        self.num_gcn_layer = 6  # 图卷积层数
+        self.label_num = 117    # 总标签数 (top:4,second:11,conn:102)
         self.label_embedding_size = 100
         if model == 'roberta-large':
             self.attn_hidden_size = 1024
@@ -138,16 +135,16 @@ class Config(object):
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Label Dependence-aware Sequence Generation Model for Multi-level Implicit Discourse Relation Recognition')
+    parser = argparse.ArgumentParser(description='Implicit Discourse Relation Recognition')
     parser.add_argument('--model', type=str, default=model, help='choose a model')
     parser.add_argument('--cuda', type=int, default=0, choices=[0, 1], help='choose a cuda: 0 or 1')
     parser.add_argument('--tune', type=int, default=1, choices=[1, 0], help='fine tune or not: 0 or 1')
-    parser.add_argument('--base', type=str, default='roberta', choices=['roberta'], help='roberta model as encoder')
+    parser.add_argument('--base', type=str, default=model, help=model+' model as encoder')
     parser.add_argument('--lambda4', type=float, default=1.0, help='lambda for kl loss')
     args = parser.parse_args()
 
     dataset = 'PDTB/Ji'  
-    model_name = args.model      # roberta-base / bert-base-uncased
+    model_name = args.model  # roberta-base / roberta-large / bert-base-uncased /albert-base-v2 / distilbert-base-uncased
     x = import_module(model_name)
     config = Config(dataset, args.cuda, bool(args.tune), args.lambda4)
     setlogging(lgg.DEBUG, config.log)
