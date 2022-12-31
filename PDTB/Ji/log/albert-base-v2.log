@@ -1,0 +1,8 @@
+13:02 INFO     {'model_name': 'albert-base-v2', 'train_path': 'PDTB/Ji/data/train.txt', 'dev_path': 'PDTB/Ji/data/dev.txt', 'test_path': 'PDTB/Ji/data/test.txt', 'i2conn': '', 'conn2i': '', 'i2top': '', 'top2i': '', 'i2sec': '', 'sec2i': '', 'save_path_top': 'PDTB/Ji/saved_dict/albert-base-v2_top.ckpt', 'save_path_sec': 'PDTB/Ji/saved_dict/albert-base-v2_sec.ckpt', 'save_path_conn': 'PDTB/Ji/saved_dict/albert-base-v2_conn.ckpt', 'log': 'PDTB/Ji/log/albert-base-v2.log', 'device': device(type='cpu'), 'require_improvement': 10000, 'n_top': 4, 'n_sec': 11, 'n_conn': 102, 'pad_size': 100, 'finetune_bert': True, 'num_epochs': 15, 'learning_rate': 1e-05, 'batch_size': 32, 'hidden_size': 768, 'bert_path': 'albert-base-v2', 'tokenizer': '', 'lambda1': 1.0, 'lambda2': 1.0, 'lambda3': 1.0, 'lambda4': 1.0, 'x_dim': 768, 'need_clc_loss': True, 'need_conn_rst': True, 'model_choose': 'bert_simple', 'show_time': True, 'num_gcn_layer': 2, 'label_num': 117, 'label_embedding_size': 100, 'attn_hidden_size': 768, 'enc_emb_dim': 384, 'dec_emb_dim': 384, 'enc_hidden_size': 768, 'dec_hidden_size': 768, 'enc_hid_dim': 768, 'dec_hid_dim': 768}
+13:02 INFO     Loading data...
+13:02 INFO     Time usage: 18.781917572021484
+13:02 DEBUG    Starting new HTTPS connection (1): huggingface.co:443
+13:02 DEBUG    https://huggingface.co:443 "HEAD /albert-base-v2/resolve/main/config.json HTTP/1.1" 200 0
+13:02 DEBUG    Starting new HTTPS connection (1): huggingface.co:443
+13:02 DEBUG    https://huggingface.co:443 "HEAD /albert-base-v2/resolve/main/pytorch_model.bin HTTP/1.1" 302 0
+13:02 INFO     Epoch [1/15]

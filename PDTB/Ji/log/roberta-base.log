@@ -1,0 +1,8 @@
+12:06 INFO     {'model_name': 'roberta-base', 'train_path': 'PDTB/Ji/data/train.txt', 'dev_path': 'PDTB/Ji/data/dev.txt', 'test_path': 'PDTB/Ji/data/test.txt', 'i2conn': '', 'conn2i': '', 'i2top': '', 'top2i': '', 'i2sec': '', 'sec2i': '', 'save_path_top': 'PDTB/Ji/saved_dict/roberta-base_top.ckpt', 'save_path_sec': 'PDTB/Ji/saved_dict/roberta-base_sec.ckpt', 'save_path_conn': 'PDTB/Ji/saved_dict/roberta-base_conn.ckpt', 'log': 'PDTB/Ji/log/roberta-base.log', 'device': device(type='cpu'), 'require_improvement': 10000, 'n_top': 4, 'n_sec': 11, 'n_conn': 102, 'pad_size': 100, 'finetune_bert': True, 'num_epochs': 15, 'learning_rate': 1e-05, 'batch_size': 32, 'hidden_size': 768, 'bert_path': 'roberta-base', 'tokenizer': '', 'lambda1': 1.0, 'lambda2': 1.0, 'lambda3': 1.0, 'lambda4': 1.0, 'x_dim': 768, 'need_clc_loss': True, 'need_conn_rst': True, 'model_choose': 'bert_simple', 'show_time': True, 'num_gcn_layer': 2, 'label_num': 117, 'label_embedding_size': 100, 'attn_hidden_size': 768, 'enc_emb_dim': 384, 'dec_emb_dim': 384, 'enc_hidden_size': 768, 'dec_hidden_size': 768, 'enc_hid_dim': 768, 'dec_hid_dim': 768}
+12:06 INFO     Loading data...
+12:06 INFO     Time usage: 17.364248514175415
+12:06 DEBUG    Starting new HTTPS connection (1): huggingface.co:443
+12:06 DEBUG    https://huggingface.co:443 "HEAD /roberta-base/resolve/main/config.json HTTP/1.1" 200 0
+12:06 DEBUG    Starting new HTTPS connection (1): huggingface.co:443
+12:06 DEBUG    https://huggingface.co:443 "HEAD /roberta-base/resolve/main/pytorch_model.bin HTTP/1.1" 302 0
+12:06 INFO     Epoch [1/15]
