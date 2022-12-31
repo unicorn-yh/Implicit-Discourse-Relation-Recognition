@@ -26,7 +26,7 @@ def train(config, model, train_iter, dev_iter, test_iter):
                          lr=config.learning_rate,
                          warmup=0.05,
                          t_total=len(train_iter) * config.num_epochs)
-    total_batch = 0  # 
+    total_batch = 0  
     dev_best_acc_top = 0.0
     dev_best_acc_sec = 0.0
     dev_best_acc_conn = 0.0
@@ -34,8 +34,8 @@ def train(config, model, train_iter, dev_iter, test_iter):
     dev_best_f1_sec = 0.0
     dev_best_f1_conn = 0.0
 
-    last_improve = 0  # 
-    flag = False  # 
+    last_improve = 0  
+    flag = False  
     model.train()
     criterion_kl_loss = nn.KLDivLoss(reduction='batchmean')
     for epoch in range(config.num_epochs):
@@ -43,21 +43,19 @@ def train(config, model, train_iter, dev_iter, test_iter):
         start_time = time.time()
         lgg.info('Epoch [{}/{}]'.format(epoch + 1, config.num_epochs))
         for i, (trains, y1, y2, argmask) in enumerate(train_iter):
-
             outputs_top, outputs_sec, outputs_conn, outputs_top_reverse, outputs_sec_reverse, outputs_conn_reverse = model(trains, argmask)
-
             model.zero_grad()
 
             loss_top = F.cross_entropy(outputs_top, y1[0])
             loss_sec = F.cross_entropy(outputs_sec, y1[1])
             loss_conn = F.cross_entropy(outputs_conn, y1[2])
-
             loss_kl_top = criterion_kl_loss(torch.log_softmax(outputs_top, dim=-1),
                                             torch.softmax(outputs_top_reverse.detach(), dim=-1))
             loss_kl_sec = criterion_kl_loss(torch.log_softmax(outputs_sec, dim=-1),
                                             torch.softmax(outputs_sec_reverse.detach(), dim=-1))
             loss_kl_conn = criterion_kl_loss(torch.log_softmax(outputs_conn, dim=-1),
                                              torch.softmax(outputs_conn_reverse.detach(), dim=-1))
+            
             # auxilary decoder loss
             loss_top_reverse = F.cross_entropy(outputs_top_reverse, y1[0])
             loss_sec_reverse = F.cross_entropy(outputs_sec_reverse, y1[1])
@@ -86,21 +84,13 @@ def train(config, model, train_iter, dev_iter, test_iter):
 
             if config.show_time:
                 if total_batch % 100 == 0:
-                    # 
                     y_true_top = y1[0].data.cpu()
                     y_true_sec = y1[1].data.cpu()
                     y_true_conn = y1[2].data.cpu()
                     if config.need_clc_loss:
-                        # outputs_top_em = torch.div(outputs_top + outputs_top_reverse, 2)
-                        # outputs_sec_em = torch.div(outputs_sec + outputs_sec_reverse, 2)
-                        # outputs_conn_em = torch.div(outputs_conn + outputs_conn_reverse, 2)
                         y_predit_top = torch.max(outputs_top.data, 1)[1].cpu()
                         y_predit_sec = torch.max(outputs_sec.data, 1)[1].cpu()
                         y_predit_conn = torch.max(outputs_conn.data, 1)[1].cpu()
-
-                        # y_predit_top_reverse = torch.max(outputs_top_reverse.data, 1)[1].cpu()
-                        # y_predit_sec_reverse = torch.max(outputs_sec_reverse.data, 1)[1].cpu()
-                        # y_predit_conn_reverse = torch.max(outputs_conn_reverse.data, 1)[1].cpu()
                     else:
                         y_predit_top = outputs_top.data.cpu()
                         y_predit_sec = outputs_sec.data.cpu()
@@ -108,19 +98,7 @@ def train(config, model, train_iter, dev_iter, test_iter):
                     train_acc_top = metrics.accuracy_score(y_true_top, y_predit_top)
                     train_acc_sec = metrics.accuracy_score(y_true_sec, y_predit_sec)
                     train_acc_conn = metrics.accuracy_score(y_true_conn, y_predit_conn)
-
-                    # train_acc_top_reverse = metrics.accuracy_score(y_true_top, y_predit_top_reverse)
-                    # train_acc_sec_reverse = metrics.accuracy_score(y_true_sec, y_predit_sec_reverse)
-                    # train_acc_conn_reverse = metrics.accuracy_score(y_true_conn, y_predit_conn_reverse)
-
-                    # train_acc_top_em = metrics.accuracy_score(y_true_top, y_predit_top)
-                    # train_acc_sec_em = metrics.accuracy_score(y_true_sec, y_predit_sec)
-                    # train_acc_conn_em = metrics.accuracy_score(y_true_conn, y_predit_conn)
-
                     loss_dev, acc_top, f1_top, acc_sec, f1_sec, acc_conn, f1_conn = evaluate(config, model, dev_iter)
-                    # loss_dev_reverse, acc_top_reverse, f1_top_reverse, acc_sec_reverse, f1_sec_reverse,\
-                    #     acc_conn_reverse, f1_conn_reverse = evaluate(config, model, dev_iter, reverse=True)
-                    # loss_dev_em, acc_top_em, f1_top_em, acc_sec_em, f1_sec_em, acc_conn_em, f1_conn_em = evaluate(config, model, dev_iter, ensemble=True)
 
                     if (f1_top + f1_sec + f1_conn) > (dev_best_f1_top+ dev_best_f1_sec+ dev_best_f1_conn):
                         dev_best_f1_top = f1_top
@@ -145,44 +123,11 @@ def train(config, model, train_iter, dev_iter, test_iter):
                     msg = 'top-down:CONN: Iter: {0:>6},  Train Loss: {1:>5.2},  Train Acc: {2:>6.2%},' + \
                           'Val Loss: {3:>5.2},  Val Acc: {4:>6.2%}, Val F1: {5:>6.2%} Time: {6} {7}'
                     lgg.info(msg.format(total_batch, loss.item(), train_acc_conn, loss_dev, acc_conn, f1_conn, time_dif, improve))
-
                     lgg.info(' ')
-
-                    # the auxilary decoder result
-                    # msg = 'bottom-up:TOP Iter: {0:>6},  Train Loss: {1:>5.2},  Train Acc: {2:>6.2%},' + \
-                    #       'Val Loss: {3:>5.2},  Val Acc: {4:>6.2%}, Val F1: {5:>6.2%} Time: {6} {7}'
-                    # lgg.info(msg.format(total_batch, loss_reverse.item(), train_acc_top_reverse, loss_dev_reverse, acc_top_reverse, f1_top_reverse, time_dif,
-                    #                     ''))
-                    # msg = 'bottom-up:SEC: Iter: {0:>6},  Train Loss: {1:>5.2},  Train Acc: {2:>6.2%},' + \
-                    #       'Val Loss: {3:>5.2},  Val Acc: {4:>6.2%}, Val F1: {5:>6.2%} Time: {6} {7}'
-                    # lgg.info(msg.format(total_batch, loss_reverse.item(), train_acc_sec_reverse, loss_dev_reverse, acc_sec_reverse, f1_sec_reverse, time_dif,
-                    #                     ''))
-                    # msg = 'bottom-up:CONN: Iter: {0:>6},  Train Loss: {1:>5.2},  Train Acc: {2:>6.2%},' + \
-                    #       'Val Loss: {3:>5.2},  Val Acc: {4:>6.2%}, Val F1: {5:>6.2%} Time: {6} {7}'
-                    # lgg.info(msg.format(total_batch, loss_reverse.item(), train_acc_conn_reverse, loss_dev_reverse, acc_conn_reverse, f1_conn_reverse, time_dif,
-                    #                     ''))
-
-                    # for the ensemble result
                     lgg.info(' ')
-                    # msg = 'emsemble:TOP: Iter: {0:>6}, ' + \
-                    #       'Val Loss: {1:>5.2},  Val Acc: {2:>6.2%}, Val F1: {3:>6.2%} Time: {4} {5}'
-                    # lgg.info(msg.format(total_batch, loss_dev_em,
-                    #                     acc_top_em, f1_top_em, time_dif,
-                    #                     improve))
-                    # msg = 'emsemble:SEC: Iter: {0:>6}, ' + \
-                    #       'Val Loss: {1:>5.2},  Val Acc: {2:>6.2%}, Val F1: {3:>6.2%} Time: {4} {5}'
-                    # lgg.info(msg.format(total_batch, loss_dev_em,
-                    #                     acc_sec_em, f1_sec_em, time_dif,
-                    #                     improve))
-                    # msg = 'emsemble:CONN: Iter: {0:>6}, ' + \
-                    #       'Val Loss: {1:>5.2},  Val Acc: {2:>6.2%}, Val F1: {3:>6.2%} Time: {4} {5}'
-                    # lgg.info(msg.format(total_batch, loss_dev_em,
-                    #                     acc_conn_em, f1_conn_em, time_dif,
-                    #                     improve))
                 model.train()
 
-                if total_batch - last_improve > config.require_improvement:
-                    # training stop
+                if total_batch - last_improve > config.require_improvement:   # training stop
                     lgg.info("No optimization for a long time, auto-stopping...")
                     flag = True
                     break
@@ -191,12 +136,7 @@ def train(config, model, train_iter, dev_iter, test_iter):
 
         time_dif = get_time_dif(start_time)
         lgg.info("Train time usage: {}".format(time_dif))
-        acc_top_test, f1_top_test, acc_sec_test, f1_sec_test, acc_conn_test, f1_conn_test \
-            = test(config, model, test_iter)
-        # acc_top_test_reverse, f1_top_test_reverse, acc_sec_test_reverse, f1_sec_test_reverse, acc_conn_test_reverse, f1_conn_test_reverse \
-        #     = test(config, model, test_iter, reverse=True)
-        # acc_top_test_reverse, f1_top_test_reverse, acc_sec_test_reverse, f1_sec_test_reverse, acc_conn_test_reverse, f1_conn_test_reverse \
-        #     = test(config, model, test_iter, ensemble=True)
+        acc_top_test, f1_top_test, acc_sec_test, f1_sec_test, acc_conn_test, f1_conn_test  = test(config, model, test_iter)
     dev_msg = 'dev_best_acc_top: {0:>6.2%},  dev_best_f1_top: {1:>6.2%}, \n' +\
                 'dev_best_acc_sec: {2:>6.2%},  dev_best_f1_sec: {3:>6.2%}, \n' +\
                 'dev_best_acc_conn: {4:>6.2%},  dev_best_f1_conn: {5:>6.2%}'
@@ -243,7 +183,6 @@ def evaluate(config, model, data_iter, test=False, reverse=False, ensemble=False
 
     with torch.no_grad():
         for texts, y1, y2, argmask in data_iter:
-
             outputs_top, outputs_sec, outputs_conn,outputs_top_reverse, outputs_sec_reverse, outputs_conn_reverse = model(texts, argmask)
             if reverse:
                 outputs_top = outputs_top_reverse
@@ -259,7 +198,6 @@ def evaluate(config, model, data_iter, test=False, reverse=False, ensemble=False
             loss_conn = F.cross_entropy(outputs_conn, y1[2])
 
             loss = loss_top * config.lambda1 + loss_sec * config.lambda2 + loss_conn * config.lambda3
-
             loss_total += loss
             if config.need_clc_loss:
                 y_predit_top = torch.max(outputs_top.data, 1)[1].cpu().numpy()
