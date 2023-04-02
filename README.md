@@ -54,4 +54,4 @@ In the experiment, the RoBERTa model was used again for IDRR task training. The 
 <br>
 
 ## Conclusion
-From this experiment, I learned how to use various BERT-like models to train the Implicit Discourse Relation Discrimination (IDRR) task, and gained a deep understanding of variables such as model framework, number of parameters, model size, hyperparameters, etc. influence on the training effect. Compared with DistilBERT BASE, ALBERT BASE, BERT BASE, and RoBERTa BASE, RoBERTa LARGE model training has reached the highest F1 value, improving the overall model performance and accuracy.
+This project emphasizes the usage of various BERT-like models to train the Implicit Discourse Relation Discrimination (IDRR) task, and a deep understanding on variables such as model framework, number of parameters, model size, hyperparameters, etc. influence on the training effect. Compared with DistilBERT BASE, ALBERT BASE, BERT BASE, and RoBERTa BASE, RoBERTa LARGE model training has reached the highest F1 value, improving the overall model performance and accuracy.
